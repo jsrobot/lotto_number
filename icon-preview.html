@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lotto QR Analyzer Icon Candidates</title>
+    <style>
+      :root {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f7f5ef;
+        color: #202124;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+      }
+
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.8rem;
+      }
+
+      p {
+        color: #636870;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      .card {
+        padding: 16px;
+        border: 1px solid #ddd7ca;
+        border-radius: 10px;
+        background: #fffdf8;
+      }
+
+      .card.is-selected {
+        border-color: #147d73;
+        box-shadow: 0 0 0 3px rgba(20, 125, 115, 0.14);
+      }
+
+      .icon {
+        display: block;
+        width: 160px;
+        height: 160px;
+        margin: 0 auto 14px;
+        border-radius: 22%;
+        box-shadow: 0 16px 32px rgba(30, 37, 42, 0.18);
+      }
+
+      h2 {
+        margin: 0 0 6px;
+        font-size: 1.1rem;
+      }
+
+      code {
+        display: block;
+        overflow-wrap: anywhere;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        background: #f1eee5;
+        color: #2f3437;
+        font-size: 0.85rem;
+      }
+
+      .badge {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #e8f5f3;
+        color: #0a625a;
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>아이콘 후보</h1>
+      <p>모바일 홈 화면 바로가기 아이콘으로 사용할 후보 3개입니다. 선택하면 해당 이미지를 앱 아이콘으로 연결하고 필요한 크기를 생성합니다.</p>
+
+      <section class="grid">
+        <article class="card is-selected">
+          <img class="icon" src="./assets/icon-candidates/icon-candidate-1.png" alt="아이콘 후보 1">
+          <span class="badge">선택됨</span>
+          <h2>후보 1</h2>
+          <p>QR 코드와 세 개의 로또공을 크게 보여주는 직관적인 스타일입니다.</p>
+          <code>assets/icon-candidates/icon-candidate-1.png</code>
+        </article>
+
+        <article class="card">
+          <img class="icon" src="./assets/icon-candidates/icon-candidate-2.png" alt="아이콘 후보 2">
+          <h2>후보 2</h2>
+          <p>스캔 프레임과 한 개의 로또공으로 작은 크기에서 가장 단순하게 읽힙니다.</p>
+          <code>assets/icon-candidates/icon-candidate-2.png</code>
+        </article>
+
+        <article class="card">
+          <img class="icon" src="./assets/icon-candidates/icon-candidate-3.png" alt="아이콘 후보 3">
+          <h2>후보 3</h2>
+          <p>영수증형 티켓과 여러 번호공을 보여주는 친근한 스타일입니다.</p>
+          <code>assets/icon-candidates/icon-candidate-3.png</code>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

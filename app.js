@@ -1,9 +1,9 @@
-const SAMPLE_URL = "http://m.dhlottery.co.kr/?v=0955q010715172842q030712163541q202730353941q031328364445q021214192934";
+const SAMPLE_URL = "https://m.dhlottery.co.kr/?v=0955q010715172842q030712163541q202730353941q031328364445q021214192934";
 
 const state = {
-  pyodide: null,
-  pyodideReady: false,
-  scannerSupported: "BarcodeDetector" in window,
+  barcodeDetectorSupported: "BarcodeDetector" in window,
+  barcodeDetectorFailed: false,
+  jsQrSupported: typeof window.jsQR === "function",
   scanning: false,
   scanFrameId: null,
   stream: null,
@@ -23,9 +23,11 @@ function initApp() {
   bindEvents();
   renderNumberGrid();
   renderScannerSupport();
-  setStatus("준비 중");
-  setMessage("분석 엔진을 준비하고 있습니다.");
-  initPyodide();
+  setStatus("준비 완료");
+  setMessage("QR URL을 입력하거나 사진 인식을 시작하세요.", "success");
+  els.analyzeButton.disabled = false;
+  els.generateButton.disabled = false;
+  parseCurrentUrl();
 }
 
 function bindElements() {
@@ -33,6 +35,8 @@ function bindElements() {
   els.messageText = document.querySelector("#messageText");
   els.cameraPreview = document.querySelector("#cameraPreview");
   els.cameraEmpty = document.querySelector("#cameraEmpty");
+  els.photoInput = document.querySelector("#photoInput");
+  els.qrCanvas = document.querySelector("#qrCanvas");
   els.startScanButton = document.querySelector("#startScanButton");
   els.stopScanButton = document.querySelector("#stopScanButton");
   els.scannerSupportText = document.querySelector("#scannerSupportText");
@@ -42,6 +46,7 @@ function bindElements() {
   els.emptyResult = document.querySelector("#emptyResult");
   els.resultContent = document.querySelector("#resultContent");
   els.roundText = document.querySelector("#roundText");
+  els.extraDataText = document.querySelector("#extraDataText");
   els.excludeAllScanned = document.querySelector("#excludeAllScanned");
   els.gamesList = document.querySelector("#gamesList");
   els.numberGrid = document.querySelector("#numberGrid");
@@ -62,6 +67,7 @@ function bindEvents() {
 
   els.startScanButton.addEventListener("click", startScanner);
   els.stopScanButton.addEventListener("click", stopScanner);
+  els.photoInput.addEventListener("change", processPhotoInput);
   els.analyzeButton.addEventListener("click", () => analyzeRawQr(els.manualInput.value));
   els.sampleButton.addEventListener("click", () => {
     els.manualInput.value = SAMPLE_URL;
@@ -75,30 +81,6 @@ function bindEvents() {
 
   els.generateButton.addEventListener("click", generateNumbers);
   els.resetButton.addEventListener("click", resetConditions);
-}
-
-async function initPyodide() {
-  try {
-    state.pyodide = await loadPyodide({
-      indexURL: "./vendor/pyodide/"
-    });
-    const pythonCode = await fetch("./lotto.py").then((response) => {
-      if (!response.ok) {
-        throw new Error("lotto.py 파일을 불러오지 못했습니다.");
-      }
-      return response.text();
-    });
-    state.pyodide.runPython(pythonCode);
-    state.pyodideReady = true;
-    els.analyzeButton.disabled = false;
-    els.generateButton.disabled = false;
-    setStatus("준비 완료");
-    setMessage("QR URL을 입력하거나 스캔을 시작하세요.", "success");
-    parseCurrentUrl();
-  } catch (error) {
-    setStatus("오류");
-    setMessage(error.message || "분석 엔진을 준비하지 못했습니다.", "error");
-  }
 }
 
 function parseCurrentUrl() {
@@ -118,8 +100,8 @@ function activateTab(tabName) {
 }
 
 async function startScanner() {
-  if (!state.scannerSupported) {
-    setMessage("이 브라우저는 웹 QR 스캔을 지원하지 않습니다. QR URL을 직접 입력해 주세요.", "error");
+  if (!state.barcodeDetectorSupported && !state.jsQrSupported) {
+    setMessage("이 브라우저에서 사용할 QR 인식 엔진을 찾지 못했습니다. QR URL을 직접 입력해 주세요.", "error");
     return;
   }
 
@@ -140,7 +122,7 @@ async function startScanner() {
     els.startScanButton.disabled = true;
     els.stopScanButton.disabled = false;
     setStatus("QR 대기 중");
-    setMessage("QR 코드를 화면 안에 맞춰 주세요.");
+    setMessage("QR 코드를 화면 안에 맞춰 주세요. iPhone에서도 실시간 인식을 시도합니다.");
     scanFrame();
   } catch (error) {
     setMessage("카메라 권한을 확인하거나 QR URL을 직접 입력해 주세요.", "error");
@@ -173,10 +155,8 @@ async function scanFrame() {
   }
 
   try {
-    const detector = new BarcodeDetector({ formats: ["qr_code"] });
-    const codes = await detector.detect(els.cameraPreview);
-    if (codes.length > 0) {
-      const raw = codes[0].rawValue;
+    const raw = await detectQrFromVideo();
+    if (raw) {
       stopScanner();
       els.manualInput.value = raw;
       analyzeRawQr(raw);
@@ -191,15 +171,104 @@ async function scanFrame() {
   state.scanFrameId = requestAnimationFrame(scanFrame);
 }
 
-function analyzeRawQr(raw) {
-  if (!state.pyodideReady) {
-    setMessage("분석 엔진이 아직 준비 중입니다.", "error");
+async function detectQrFromVideo() {
+  if (state.barcodeDetectorSupported && !state.barcodeDetectorFailed) {
+    try {
+      const detector = new BarcodeDetector({ formats: ["qr_code"] });
+      const codes = await detector.detect(els.cameraPreview);
+      if (codes.length > 0) {
+        return codes[0].rawValue;
+      }
+    } catch (error) {
+      state.barcodeDetectorFailed = true;
+    }
+  }
+
+  if (state.jsQrSupported) {
+    return decodeQrFromCanvasSource(els.cameraPreview);
+  }
+
+  return null;
+}
+
+function processPhotoInput(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) {
     return;
   }
 
+  if (!state.jsQrSupported) {
+    setMessage("사진 인식을 위한 QR 엔진을 불러오지 못했습니다.", "error");
+    event.target.value = "";
+    return;
+  }
+
+  const image = new Image();
+  const objectUrl = URL.createObjectURL(file);
+
+  image.onload = () => {
+    try {
+      const raw = decodeQrFromCanvasSource(image);
+      if (!raw) {
+        setStatus("오류");
+        setMessage("사진에서 QR 코드를 찾지 못했습니다. QR이 선명하게 보이도록 다시 촬영해 주세요.", "error");
+        return;
+      }
+
+      stopScanner();
+      els.manualInput.value = raw;
+      analyzeRawQr(raw);
+    } catch (error) {
+      setStatus("오류");
+      setMessage("사진을 분석하지 못했습니다. 다른 사진을 선택해 주세요.", "error");
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+      event.target.value = "";
+    }
+  };
+
+  image.onerror = () => {
+    URL.revokeObjectURL(objectUrl);
+    event.target.value = "";
+    setStatus("오류");
+    setMessage("이미지 파일을 읽지 못했습니다.", "error");
+  };
+
+  setStatus("사진 분석 중");
+  setMessage("사진에서 QR 코드를 찾고 있습니다.");
+  image.src = objectUrl;
+}
+
+function decodeQrFromCanvasSource(source) {
+  const canvas = els.qrCanvas;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
+  const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
+
+  if (!sourceWidth || !sourceHeight) {
+    return null;
+  }
+
+  const maxSize = 1400;
+  const scale = Math.min(1, maxSize / Math.max(sourceWidth, sourceHeight));
+  const width = Math.max(1, Math.round(sourceWidth * scale));
+  const height = Math.max(1, Math.round(sourceHeight * scale));
+
+  canvas.width = width;
+  canvas.height = height;
+  context.drawImage(source, 0, 0, width, height);
+
+  const imageData = context.getImageData(0, 0, width, height);
+  const code = window.jsQR(imageData.data, imageData.width, imageData.height, {
+    inversionAttempts: "attemptBoth"
+  });
+
+  return code ? code.data : null;
+}
+
+function analyzeRawQr(raw) {
   try {
-    const parseFn = state.pyodide.globals.get("parse_lotto_qr_json");
-    const result = JSON.parse(parseFn(raw));
+    const result = window.Lotto.parseLottoQr(raw);
 
     if (!result.ok) {
       setStatus("오류");
@@ -232,6 +301,13 @@ function renderParsedResult() {
   els.emptyResult.hidden = true;
   els.resultContent.hidden = false;
   els.roundText.textContent = `${state.parsed.round}회`;
+  if (state.parsed.hasExtraData) {
+    els.extraDataText.hidden = false;
+    els.extraDataText.textContent = `부가 정보 ${state.parsed.extraData}`;
+  } else {
+    els.extraDataText.hidden = true;
+    els.extraDataText.textContent = "";
+  }
   els.gamesList.innerHTML = "";
 
   state.parsed.games.forEach((game) => {
@@ -317,11 +393,6 @@ function collectExcludedNumbers() {
 }
 
 function generateNumbers() {
-  if (!state.pyodideReady) {
-    setMessage("분석 엔진이 아직 준비 중입니다.", "error");
-    return;
-  }
-
   const payload = {
     parsed: state.parsed,
     excludeAllScanned: state.excludeAllScanned,
@@ -329,8 +400,7 @@ function generateNumbers() {
     manualExcludedNumbers: Array.from(state.manualExcludedNumbers)
   };
 
-  const generateFn = state.pyodide.globals.get("generate_numbers_json");
-  const result = JSON.parse(generateFn(JSON.stringify(payload)));
+  const result = window.Lotto.generateNumbers(payload);
 
   if (!result.ok) {
     setStatus("오류");
@@ -411,10 +481,12 @@ function selectionText(type) {
 }
 
 function renderScannerSupport() {
-  if (state.scannerSupported) {
-    els.scannerSupportText.textContent = "이 브라우저는 웹 QR 스캔을 지원합니다. iPhone에서는 기본 카메라 앱으로 QR을 열어도 됩니다.";
+  if (state.jsQrSupported) {
+    els.scannerSupportText.textContent = "사진 인식을 우선 사용하세요. 실시간 스캔은 iPhone과 Android 모두에서 카메라 프레임을 분석해 QR을 찾습니다.";
+  } else if (state.barcodeDetectorSupported) {
+    els.scannerSupportText.textContent = "사진 인식 엔진을 불러오지 못했지만, 이 브라우저의 기본 QR 스캔을 시도할 수 있습니다.";
   } else {
-    els.scannerSupportText.textContent = "이 브라우저는 웹 QR 스캔을 지원하지 않을 수 있습니다. iPhone은 기본 카메라 앱으로 QR을 열거나 URL을 직접 입력해 주세요.";
+    els.scannerSupportText.textContent = "이 브라우저는 웹 QR 스캔을 지원하지 않을 수 있습니다. QR URL을 직접 입력해 주세요.";
   }
 }
 

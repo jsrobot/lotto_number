@@ -45,6 +45,16 @@ button:disabled {
   opacity: 0.52;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
 .app-shell {
   width: min(100%, 720px);
   min-height: 100vh;
@@ -127,6 +137,35 @@ h2 {
 
 .tab-panel.is-active {
   display: block;
+}
+
+.photo-scan-section {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid #b9d8d3;
+  border-radius: 8px;
+  background: #eef8f6;
+  box-shadow: var(--shadow);
+}
+
+.photo-scan-section p {
+  margin: 8px 0 0;
+  color: #52615f;
+  line-height: 1.45;
+}
+
+.photo-scan-button {
+  display: grid;
+  place-items: center;
+  min-height: 52px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  font-weight: 900;
+  text-align: center;
+  cursor: pointer;
 }
 
 .camera-panel {
@@ -270,6 +309,14 @@ h2 {
 
 .round-summary strong {
   font-size: 2rem;
+}
+
+.extra-data-text {
+  margin: 10px 2px 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .toggle-row {

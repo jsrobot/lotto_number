@@ -4,9 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#f7f5ef">
+    <meta name="apple-mobile-web-app-title" content="Lotto QR">
+    <meta name="application-name" content="Lotto QR">
     <title>Lotto QR Analyzer</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16.png">
     <link rel="stylesheet" href="./styles.css">
-    <script src="./vendor/pyodide/pyodide.js"></script>
+    <script src="./vendor/jsqr/jsQR.js"></script>
+    <script src="./lotto.js"></script>
     <script defer src="./app.js"></script>
   </head>
   <body>
@@ -26,11 +33,21 @@
       </nav>
 
       <section id="scanPanel" class="tab-panel is-active" data-panel="scan">
+        <section class="photo-scan-section">
+          <div>
+            <h2>사진으로 QR 인식</h2>
+            <p>iPhone에서는 이 방법이 가장 안정적입니다. 카메라로 QR을 촬영하거나 저장된 이미지를 선택하세요.</p>
+          </div>
+          <label class="photo-scan-button" for="photoInput">사진 찍기 / 선택</label>
+          <input id="photoInput" class="visually-hidden" type="file" accept="image/*" capture="environment">
+          <canvas id="qrCanvas" class="visually-hidden"></canvas>
+        </section>
+
         <div class="camera-panel">
           <video id="cameraPreview" class="camera-preview" muted playsinline></video>
           <div id="cameraEmpty" class="camera-empty">
             <strong>QR 스캔 대기</strong>
-            <span>지원 브라우저에서는 후면 카메라로 QR을 읽을 수 있습니다.</span>
+            <span>실시간 인식은 Android와 iPhone 모두에서 시도합니다.</span>
           </div>
         </div>
 
@@ -42,7 +59,7 @@
         <p id="scannerSupportText" class="helper-text"></p>
 
         <label class="input-label" for="manualInput">QR URL 직접 입력</label>
-        <textarea id="manualInput" class="manual-input" rows="4" spellcheck="false" placeholder="http://m.dhlottery.co.kr/?v=0955q010715172842q030712163541q202730353941q031328364445q021214192934"></textarea>
+        <textarea id="manualInput" class="manual-input" rows="4" spellcheck="false" placeholder="https://m.dhlottery.co.kr/?v=0955q010715172842q030712163541q202730353941q031328364445q021214192934"></textarea>
 
         <div class="button-row">
           <button id="analyzeButton" class="primary-button" type="button" disabled>분석하기</button>
@@ -63,6 +80,7 @@
             <span>회차</span>
             <strong id="roundText">-</strong>
           </section>
+          <p id="extraDataText" class="extra-data-text" hidden></p>
 
           <label class="toggle-row">
             <input id="excludeAllScanned" type="checkbox">
