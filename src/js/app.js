@@ -1,4 +1,8 @@
 const SAMPLE_URL = "https://m.dhlottery.co.kr/?v=0955q010715172842q030712163541q202730353941q031328364445q021214192934";
+const TAB_ORDER = ["scan", "result", "generate"];
+const DEFAULT_GAME_COUNT = 5;
+const SWIPE_MIN_DISTANCE = 50;
+const SWIPE_MAX_VERTICAL_RATIO = 0.8;
 
 const state = {
   barcodeDetectorSupported: "BarcodeDetector" in window,
@@ -11,7 +15,11 @@ const state = {
   excludeAllScanned: false,
   excludedGameIds: new Set(),
   manualExcludedNumbers: new Set(),
-  generatedHistory: []
+  generatedHistory: [],
+  activeTab: "scan",
+  gameCount: DEFAULT_GAME_COUNT,
+  touchStartX: null,
+  touchStartY: null
 };
 
 const els = {};
@@ -50,6 +58,7 @@ function bindElements() {
   els.scanGamesList = document.querySelector("#scanGamesList");
   els.scanAvailableCount = document.querySelector("#scanAvailableCount");
   els.scanExcludedSummary = document.querySelector("#scanExcludedSummary");
+  els.scanGameCountSelect = document.querySelector("#scanGameCountSelect");
   els.scanGenerateButton = document.querySelector("#scanGenerateButton");
   els.scanGeneratedResult = document.querySelector("#scanGeneratedResult");
   els.scanGeneratedBalls = document.querySelector("#scanGeneratedBalls");
@@ -61,6 +70,7 @@ function bindElements() {
   els.numberGrid = document.querySelector("#numberGrid");
   els.excludedSummary = document.querySelector("#excludedSummary");
   els.availableCount = document.querySelector("#availableCount");
+  els.gameCountSelect = document.querySelector("#gameCountSelect");
   els.generateButton = document.querySelector("#generateButton");
   els.generatedResult = document.querySelector("#generatedResult");
   els.generatedBalls = document.querySelector("#generatedBalls");
@@ -91,6 +101,10 @@ function bindEvents() {
   els.generateButton.addEventListener("click", generateNumbers);
   els.scanGenerateButton.addEventListener("click", generateNumbers);
   els.resetButton.addEventListener("click", resetConditions);
+  els.gameCountSelect.addEventListener("change", syncGameCount);
+  els.scanGameCountSelect.addEventListener("change", syncGameCount);
+  document.querySelector(".app-shell").addEventListener("touchstart", handleTouchStart, { passive: true });
+  document.querySelector(".app-shell").addEventListener("touchend", handleTouchEnd, { passive: true });
 }
 
 function parseCurrentUrl() {
@@ -100,6 +114,12 @@ function parseCurrentUrl() {
 }
 
 function activateTab(tabName) {
+  if (!TAB_ORDER.includes(tabName)) {
+    return;
+  }
+
+  state.activeTab = tabName;
+
   document.querySelectorAll(".tab-button").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.tab === tabName);
   });
@@ -107,6 +127,65 @@ function activateTab(tabName) {
   document.querySelectorAll(".tab-panel").forEach((panel) => {
     panel.classList.toggle("is-active", panel.dataset.panel === tabName);
   });
+}
+
+function syncGameCount(event) {
+  const count = normalizeGameCount(event.target.value);
+  state.gameCount = count;
+  els.gameCountSelect.value = String(count);
+  els.scanGameCountSelect.value = String(count);
+}
+
+function normalizeGameCount(value) {
+  const count = Number(value);
+  if (!Number.isInteger(count)) {
+    return DEFAULT_GAME_COUNT;
+  }
+  return Math.min(5, Math.max(1, count));
+}
+
+function handleTouchStart(event) {
+  if (isSwipeIgnored(event.target) || event.touches.length !== 1) {
+    state.touchStartX = null;
+    state.touchStartY = null;
+    return;
+  }
+
+  state.touchStartX = event.touches[0].clientX;
+  state.touchStartY = event.touches[0].clientY;
+}
+
+function handleTouchEnd(event) {
+  if (state.touchStartX == null || state.touchStartY == null || event.changedTouches.length !== 1) {
+    return;
+  }
+
+  const deltaX = event.changedTouches[0].clientX - state.touchStartX;
+  const deltaY = event.changedTouches[0].clientY - state.touchStartY;
+  state.touchStartX = null;
+  state.touchStartY = null;
+
+  if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) {
+    return;
+  }
+
+  if (Math.abs(deltaY) > Math.abs(deltaX) * SWIPE_MAX_VERTICAL_RATIO) {
+    return;
+  }
+
+  const currentIndex = TAB_ORDER.indexOf(state.activeTab);
+  const nextIndex = deltaX < 0 ? currentIndex + 1 : currentIndex - 1;
+  const nextTab = TAB_ORDER[nextIndex];
+
+  if (nextTab) {
+    activateTab(nextTab);
+  }
+}
+
+function isSwipeIgnored(target) {
+  return Boolean(target.closest(
+    "button, input, textarea, select, label, .number-toggle, .game-row, .photo-scan-section, .camera-panel"
+  ));
 }
 
 async function startScanner() {
@@ -459,7 +538,8 @@ function generateNumbers() {
     parsed: state.parsed,
     excludeAllScanned: state.excludeAllScanned,
     excludedGameIds: Array.from(state.excludedGameIds),
-    manualExcludedNumbers: Array.from(state.manualExcludedNumbers)
+    manualExcludedNumbers: Array.from(state.manualExcludedNumbers),
+    gameCount: state.gameCount
   };
 
   const result = window.Lotto.generateNumbers(payload);
@@ -471,36 +551,49 @@ function generateNumbers() {
     return;
   }
 
-  state.generatedHistory.unshift(result.numbers);
+  state.generatedHistory.unshift(result.games);
   state.generatedHistory = state.generatedHistory.slice(0, 5);
-  renderGeneratedNumbers(result.numbers);
+  renderGeneratedNumbers(result.games);
   renderHistory();
   renderExclusionSummary();
   setStatus("생성 완료");
-  setMessage("새 번호를 생성했습니다.", "success");
+  setMessage(`${result.gameCount}게임 번호를 생성했습니다.`, "success");
 }
 
-function renderGeneratedNumbers(numbers) {
+function renderGeneratedNumbers(games) {
   els.generatedResult.hidden = false;
   els.scanGeneratedResult.hidden = false;
   els.generatedBalls.innerHTML = "";
   els.scanGeneratedBalls.innerHTML = "";
-  els.generatedBalls.append(...numbers.map(createBall));
-  els.scanGeneratedBalls.append(...numbers.map(createBall));
+  els.generatedBalls.append(...games.map(createGeneratedGameRow));
+  els.scanGeneratedBalls.append(...games.map(createGeneratedGameRow));
 }
 
 function renderHistory() {
   els.historySection.hidden = state.generatedHistory.length === 0;
   els.historyList.innerHTML = "";
 
-  state.generatedHistory.forEach((numbers, index) => {
+  state.generatedHistory.forEach((games, index) => {
     const item = document.createElement("div");
     item.className = "history-item";
     const label = document.createElement("strong");
     label.textContent = `#${index + 1}`;
-    item.append(label, createBallsRow(numbers));
+    const list = document.createElement("div");
+    list.className = "generated-games-list";
+    list.append(...games.map(createGeneratedGameRow));
+    item.append(label, list);
     els.historyList.append(item);
   });
+}
+
+function createGeneratedGameRow(game) {
+  const row = document.createElement("div");
+  row.className = "generated-game-row";
+  const label = document.createElement("strong");
+  label.className = "generated-game-label";
+  label.textContent = `${game.id}게임`;
+  row.append(label, createBallsRow(game.numbers));
+  return row;
 }
 
 function resetConditions() {

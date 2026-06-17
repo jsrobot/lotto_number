@@ -201,10 +201,31 @@
     return Array.from(excluded).sort((a, b) => a - b);
   }
 
+  function normalizeGameCount(value) {
+    const count = Number(value);
+    if (!Number.isInteger(count)) {
+      return 5;
+    }
+    return Math.min(MAX_GAMES, Math.max(1, count));
+  }
+
+  function drawNumbers(candidates) {
+    const pool = [...candidates];
+    const numbers = [];
+    for (let index = 0; index < 6; index += 1) {
+      const selectedIndex = Math.floor(Math.random() * pool.length);
+      numbers.push(pool[selectedIndex]);
+      pool.splice(selectedIndex, 1);
+    }
+
+    return numbers.sort((a, b) => a - b);
+  }
+
   function generateNumbers(payload = {}) {
     const excludedNumbers = collectExcludedNumbers(payload);
     const excluded = new Set(excludedNumbers);
     const candidates = [];
+    const gameCount = normalizeGameCount(payload.gameCount);
 
     for (let number = 1; number <= 45; number += 1) {
       if (!excluded.has(number)) {
@@ -219,19 +240,16 @@
       });
     }
 
-    const pool = [...candidates];
-    const numbers = [];
-    for (let index = 0; index < 6; index += 1) {
-      const selectedIndex = Math.floor(Math.random() * pool.length);
-      numbers.push(pool[selectedIndex]);
-      pool.splice(selectedIndex, 1);
-    }
-
-    numbers.sort((a, b) => a - b);
+    const games = Array.from({ length: gameCount }, (_, index) => ({
+      id: String.fromCharCode("A".charCodeAt(0) + index),
+      numbers: drawNumbers(candidates)
+    }));
 
     return {
       ok: true,
-      numbers,
+      numbers: games[0].numbers,
+      games,
+      gameCount,
       excludedNumbers,
       availableCount: candidates.length
     };

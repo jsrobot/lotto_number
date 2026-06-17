@@ -14,10 +14,10 @@
     <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16.png">
-    <link rel="stylesheet" href="./src/css/styles.css?v=20260617-structure-1">
+    <link rel="stylesheet" href="./src/css/styles.css?v=20260617-multigen-1">
     <script src="./vendor/jsqr/jsQR.js?v=20260617-reset-1"></script>
-    <script src="./src/js/lotto.js?v=20260617-structure-1"></script>
-    <script defer src="./src/js/app.js?v=20260617-structure-1"></script>
+    <script src="./src/js/lotto.js?v=20260617-multigen-1"></script>
+    <script defer src="./src/js/app.js?v=20260617-multigen-1"></script>
   </head>
   <body>
     <main class="app-shell">
@@ -84,11 +84,25 @@
             <div id="scanExcludedSummary" class="excluded-summary">제외된 번호가 없습니다.</div>
           </section>
 
+          <section class="generator-section game-count-section">
+            <div class="section-title">
+              <h2>생성 게임 수</h2>
+              <span class="muted-text">최대 5게임</span>
+            </div>
+            <select id="scanGameCountSelect" class="game-count-select" aria-label="생성할 게임 수">
+              <option value="1">1게임</option>
+              <option value="2">2게임</option>
+              <option value="3">3게임</option>
+              <option value="4">4게임</option>
+              <option value="5" selected>5게임</option>
+            </select>
+          </section>
+
           <button id="scanGenerateButton" class="generate-button" type="button">랜덤 번호 생성</button>
 
           <section id="scanGeneratedResult" class="generated-result" hidden>
             <h2>생성 결과</h2>
-            <div id="scanGeneratedBalls" class="balls-row"></div>
+            <div id="scanGeneratedBalls" class="generated-games-list"></div>
           </section>
         </section>
       </section>
@@ -132,11 +146,25 @@
           <div id="excludedSummary" class="excluded-summary">제외된 번호가 없습니다.</div>
         </section>
 
+        <section class="generator-section game-count-section">
+          <div class="section-title">
+            <h2>생성 게임 수</h2>
+            <span class="muted-text">최대 5게임</span>
+          </div>
+          <select id="gameCountSelect" class="game-count-select" aria-label="생성할 게임 수">
+            <option value="1">1게임</option>
+            <option value="2">2게임</option>
+            <option value="3">3게임</option>
+            <option value="4">4게임</option>
+            <option value="5" selected>5게임</option>
+          </select>
+        </section>
+
         <button id="generateButton" class="generate-button" type="button" disabled>랜덤 번호 생성</button>
 
         <section id="generatedResult" class="generated-result" hidden>
           <h2>생성 결과</h2>
-          <div id="generatedBalls" class="balls-row"></div>
+          <div id="generatedBalls" class="generated-games-list"></div>
         </section>
 
         <section id="historySection" class="history-section" hidden>

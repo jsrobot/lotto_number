@@ -60,6 +60,7 @@ button:disabled {
   min-height: 100vh;
   margin: 0 auto;
   padding: max(18px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+  touch-action: pan-y;
 }
 
 .app-header {
@@ -578,14 +579,49 @@ h2 {
   margin-top: 14px;
 }
 
+.game-count-section {
+  display: grid;
+  gap: 10px;
+}
+
+.game-count-select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #faf8f1;
+  color: var(--ink);
+  font-weight: 850;
+}
+
+.generated-games-list {
+  display: grid;
+  gap: 10px;
+}
+
+.generated-game-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+}
+
+.generated-game-label {
+  color: var(--accent-strong);
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
 .history-list {
   display: grid;
   gap: 10px;
 }
 
 .history-item {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: start;
   justify-content: space-between;
   gap: 8px;
   padding-top: 10px;
