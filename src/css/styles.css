@@ -581,36 +581,56 @@ h2 {
 
 .game-count-section {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+}
+
+.game-count-section .muted-text {
+  font-size: 0.96rem;
 }
 
 .game-count-select {
   width: 100%;
-  min-height: 46px;
-  padding: 0 12px;
-  border: 1px solid var(--line);
+  min-height: 58px;
+  padding: 0 14px;
+  border: 2px solid var(--line);
   border-radius: 8px;
   background: #faf8f1;
   color: var(--ink);
+  font-size: 1.12rem;
   font-weight: 850;
 }
 
 .generated-games-list {
   display: grid;
-  gap: 10px;
+  gap: 9px;
 }
 
 .generated-game-row {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: 42px minmax(0, 1fr);
   align-items: center;
-  gap: 9px;
+  gap: 7px;
+  min-width: 0;
 }
 
 .generated-game-label {
   color: var(--accent-strong);
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 900;
+  white-space: nowrap;
+}
+
+.generated-game-row .balls-row {
+  flex-wrap: nowrap;
+  gap: 5px;
+  min-width: 0;
+}
+
+.generated-game-row .ball {
+  width: clamp(30px, 8vw, 38px);
+  height: clamp(30px, 8vw, 38px);
+  font-size: clamp(0.76rem, 2.7vw, 0.9rem);
+  box-shadow: inset 0 -4px 7px rgba(0, 0, 0, 0.17);
 }
 
 .history-list {
@@ -620,12 +640,18 @@ h2 {
 
 .history-item {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  align-items: start;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 10px;
+  gap: 9px;
+  padding-top: 12px;
   border-top: 1px solid var(--line);
+}
+
+.history-item > strong {
+  justify-self: start;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #e8f5f3;
+  color: var(--accent-strong);
+  font-size: 0.82rem;
 }
 
 @media (min-width: 560px) {
