@@ -150,6 +150,23 @@ h2 {
   box-shadow: var(--shadow);
 }
 
+.photo-scan-section.is-compact {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border-color: var(--line);
+  background: var(--paper);
+  box-shadow: none;
+}
+
+.photo-scan-section.is-compact span {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
 .photo-scan-section p {
   margin: 8px 0 0;
   color: #52615f;
@@ -166,6 +183,12 @@ h2 {
   font-weight: 900;
   text-align: center;
   cursor: pointer;
+}
+
+.photo-scan-section.is-compact .photo-scan-button {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 0.9rem;
 }
 
 .camera-panel {
@@ -311,6 +334,15 @@ h2 {
   font-size: 2rem;
 }
 
+.compact-summary {
+  margin-top: 14px;
+  padding: 12px 14px;
+}
+
+.compact-summary strong {
+  font-size: 1.35rem;
+}
+
 .extra-data-text {
   margin: 10px 2px 0;
   color: var(--muted);
@@ -342,6 +374,55 @@ h2 {
   display: grid;
   gap: 12px;
   margin-top: 12px;
+}
+
+.scan-flow-content {
+  margin-top: 14px;
+}
+
+.games-table {
+  display: grid;
+  gap: 7px;
+}
+
+.game-row {
+  display: grid;
+  grid-template-columns: 38px 40px minmax(0, 1fr) 46px;
+  align-items: center;
+  gap: 5px;
+  min-height: 48px;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.game-row .selection-badge {
+  justify-self: start;
+  padding: 3px 6px;
+  font-size: 0.72rem;
+}
+
+.game-cell {
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.game-numbers-cell {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 3px;
+  min-width: 0;
+}
+
+.row-exclude {
+  justify-content: flex-end;
+  font-size: 0.78rem;
+}
+
+.row-exclude input {
+  width: 18px;
+  height: 18px;
 }
 
 .game-card {
@@ -406,6 +487,13 @@ h2 {
   font-size: 0.96rem;
   font-weight: 950;
   box-shadow: inset 0 -5px 9px rgba(0, 0, 0, 0.18);
+}
+
+.ball-mini {
+  width: clamp(21px, 6.7vw, 28px);
+  height: clamp(21px, 6.7vw, 28px);
+  font-size: clamp(0.62rem, 2.3vw, 0.74rem);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.16);
 }
 
 .ball.range-1 {
@@ -484,6 +572,10 @@ h2 {
   min-height: 54px;
   margin-bottom: 14px;
   font-size: 1.04rem;
+}
+
+.inline-generator {
+  margin-top: 14px;
 }
 
 .history-list {

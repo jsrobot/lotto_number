@@ -44,6 +44,15 @@ function bindElements() {
   els.analyzeButton = document.querySelector("#analyzeButton");
   els.sampleButton = document.querySelector("#sampleButton");
   els.emptyResult = document.querySelector("#emptyResult");
+  els.scanFlowContent = document.querySelector("#scanFlowContent");
+  els.scanRoundText = document.querySelector("#scanRoundText");
+  els.scanExtraDataText = document.querySelector("#scanExtraDataText");
+  els.scanGamesList = document.querySelector("#scanGamesList");
+  els.scanAvailableCount = document.querySelector("#scanAvailableCount");
+  els.scanExcludedSummary = document.querySelector("#scanExcludedSummary");
+  els.scanGenerateButton = document.querySelector("#scanGenerateButton");
+  els.scanGeneratedResult = document.querySelector("#scanGeneratedResult");
+  els.scanGeneratedBalls = document.querySelector("#scanGeneratedBalls");
   els.resultContent = document.querySelector("#resultContent");
   els.roundText = document.querySelector("#roundText");
   els.extraDataText = document.querySelector("#extraDataText");
@@ -80,6 +89,7 @@ function bindEvents() {
   });
 
   els.generateButton.addEventListener("click", generateNumbers);
+  els.scanGenerateButton.addEventListener("click", generateNumbers);
   els.resetButton.addEventListener("click", resetConditions);
 }
 
@@ -282,7 +292,6 @@ function analyzeRawQr(raw) {
     els.excludeAllScanned.checked = false;
     renderParsedResult();
     renderExclusionSummary();
-    activateTab("result");
     setStatus("분석 완료");
     setMessage(`${result.data.round}회 QR을 분석했습니다.`, "success");
   } catch (error) {
@@ -295,48 +304,72 @@ function renderParsedResult() {
   if (!state.parsed) {
     els.emptyResult.hidden = false;
     els.resultContent.hidden = true;
+    els.scanFlowContent.hidden = true;
     return;
   }
 
   els.emptyResult.hidden = true;
   els.resultContent.hidden = false;
-  els.roundText.textContent = `${state.parsed.round}회`;
+  els.scanFlowContent.hidden = false;
+  renderResultHeader(els.roundText, els.extraDataText);
+  renderResultHeader(els.scanRoundText, els.scanExtraDataText);
+  renderGameRows(els.gamesList);
+  renderGameRows(els.scanGamesList);
+}
+
+function renderResultHeader(roundEl, extraEl) {
+  roundEl.textContent = `${state.parsed.round}회`;
   if (state.parsed.hasExtraData) {
-    els.extraDataText.hidden = false;
-    els.extraDataText.textContent = `부가 정보 ${state.parsed.extraData}`;
+    extraEl.hidden = false;
+    extraEl.textContent = `부가 정보 ${state.parsed.extraData}`;
   } else {
-    els.extraDataText.hidden = true;
-    els.extraDataText.textContent = "";
+    extraEl.hidden = true;
+    extraEl.textContent = "";
   }
-  els.gamesList.innerHTML = "";
+}
+
+function renderGameRows(container) {
+  container.innerHTML = "";
+
+  const table = document.createElement("div");
+  table.className = "games-table";
 
   state.parsed.games.forEach((game) => {
-    const card = document.createElement("article");
-    card.className = "game-card";
+    const row = document.createElement("div");
+    row.className = "game-row";
 
-    const header = document.createElement("div");
-    header.className = "game-header";
+    const gameCell = document.createElement("strong");
+    gameCell.className = "game-cell";
+    gameCell.textContent = `${game.id}게임`;
 
-    const title = document.createElement("div");
-    title.className = "game-title";
-    title.innerHTML = `<span>${game.id} 게임</span><span class="selection-badge">${selectionText(game.selectionType)}</span>`;
+    const typeCell = document.createElement("span");
+    typeCell.className = "selection-badge";
+    typeCell.textContent = selectionText(game.selectionType);
+
+    const numbersCell = document.createElement("div");
+    numbersCell.className = "game-numbers-cell";
+    numbersCell.append(...game.numbers.map(createMiniBall));
 
     const label = document.createElement("label");
-    label.className = "exclude-game";
+    label.className = "exclude-game row-exclude";
     label.innerHTML = `<input type="checkbox" data-game-id="${game.id}"><span>제외</span>`;
-    label.querySelector("input").addEventListener("change", (event) => {
+    const input = label.querySelector("input");
+    input.checked = state.excludedGameIds.has(game.id);
+    input.addEventListener("change", (event) => {
       if (event.target.checked) {
         state.excludedGameIds.add(game.id);
       } else {
         state.excludedGameIds.delete(game.id);
       }
+      renderParsedResult();
       renderExclusionSummary();
     });
 
-    header.append(title, label);
-    card.append(header, createBallsRow(game.numbers));
-    els.gamesList.append(card);
+    row.append(gameCell, typeCell, numbersCell, label);
+    table.append(row);
   });
+
+  container.append(table);
 }
 
 function renderNumberGrid() {
@@ -345,6 +378,7 @@ function renderNumberGrid() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "number-toggle";
+    button.dataset.number = String(number);
     button.textContent = String(number).padStart(2, "0");
     button.setAttribute("aria-pressed", "false");
     button.addEventListener("click", () => {
@@ -353,25 +387,40 @@ function renderNumberGrid() {
       } else {
         state.manualExcludedNumbers.add(number);
       }
-      button.classList.toggle("is-selected", state.manualExcludedNumbers.has(number));
-      button.setAttribute("aria-pressed", String(state.manualExcludedNumbers.has(number)));
       renderExclusionSummary();
     });
     els.numberGrid.append(button);
   }
+  renderNumberGridSelection();
 }
 
 function renderExclusionSummary() {
   const excluded = collectExcludedNumbers();
   const available = 45 - excluded.length;
   els.availableCount.textContent = `${available}개 후보`;
+  els.scanAvailableCount.textContent = `${available}개 후보`;
 
   if (excluded.length === 0) {
     els.excludedSummary.textContent = "제외된 번호가 없습니다.";
+    els.scanExcludedSummary.textContent = "제외된 번호가 없습니다.";
+    renderNumberGridSelection();
     return;
   }
 
-  els.excludedSummary.textContent = excluded.map((number) => String(number).padStart(2, "0")).join(", ");
+  const summary = excluded.map((number) => String(number).padStart(2, "0")).join(", ");
+  els.excludedSummary.textContent = summary;
+  els.scanExcludedSummary.textContent = summary;
+  renderNumberGridSelection();
+}
+
+function renderNumberGridSelection() {
+  const excluded = new Set(collectExcludedNumbers());
+  document.querySelectorAll(".number-toggle").forEach((button) => {
+    const number = Number(button.dataset.number);
+    const selected = excluded.has(number);
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
 }
 
 function collectExcludedNumbers() {
@@ -420,8 +469,11 @@ function generateNumbers() {
 
 function renderGeneratedNumbers(numbers) {
   els.generatedResult.hidden = false;
+  els.scanGeneratedResult.hidden = false;
   els.generatedBalls.innerHTML = "";
+  els.scanGeneratedBalls.innerHTML = "";
   els.generatedBalls.append(...numbers.map(createBall));
+  els.scanGeneratedBalls.append(...numbers.map(createBall));
 }
 
 function renderHistory() {
@@ -443,13 +495,7 @@ function resetConditions() {
   state.excludedGameIds.clear();
   state.manualExcludedNumbers.clear();
   els.excludeAllScanned.checked = false;
-  document.querySelectorAll(".exclude-game input").forEach((input) => {
-    input.checked = false;
-  });
-  document.querySelectorAll(".number-toggle").forEach((button) => {
-    button.classList.remove("is-selected");
-    button.setAttribute("aria-pressed", "false");
-  });
+  renderParsedResult();
   renderExclusionSummary();
   setMessage("제외 조건을 초기화했습니다.", "success");
 }
@@ -468,6 +514,12 @@ function createBall(number) {
   return ball;
 }
 
+function createMiniBall(number) {
+  const ball = createBall(number);
+  ball.classList.add("ball-mini");
+  return ball;
+}
+
 function rangeClass(number) {
   if (number <= 10) return "range-1";
   if (number <= 20) return "range-2";
@@ -482,7 +534,7 @@ function selectionText(type) {
 
 function renderScannerSupport() {
   if (state.jsQrSupported) {
-    els.scannerSupportText.textContent = "사진 인식을 우선 사용하세요. 실시간 스캔은 iPhone과 Android 모두에서 카메라 프레임을 분석해 QR을 찾습니다.";
+    els.scannerSupportText.textContent = "실시간 스캔 우선. 실패하면 사진 선택을 사용하세요.";
   } else if (state.barcodeDetectorSupported) {
     els.scannerSupportText.textContent = "사진 인식 엔진을 불러오지 못했지만, 이 브라우저의 기본 QR 스캔을 시도할 수 있습니다.";
   } else {

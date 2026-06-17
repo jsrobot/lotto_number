@@ -10,14 +10,14 @@
     <meta name="apple-mobile-web-app-title" content="Lotto QR">
     <meta name="application-name" content="Lotto QR">
     <title>Lotto QR Analyzer</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=20260617-js-only-2">
+    <link rel="manifest" href="./manifest.webmanifest?v=20260617-flow-1">
     <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16.png">
-    <link rel="stylesheet" href="./styles.css?v=20260617-js-only-2">
-    <script src="./vendor/jsqr/jsQR.js?v=20260617-js-only-2"></script>
-    <script src="./lotto.js?v=20260617-js-only-2"></script>
-    <script defer src="./app.js?v=20260617-js-only-2"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260617-flow-1">
+    <script src="./vendor/jsqr/jsQR.js?v=20260617-flow-1"></script>
+    <script src="./lotto.js?v=20260617-flow-1"></script>
+    <script defer src="./app.js?v=20260617-flow-1"></script>
   </head>
   <body>
     <main class="app-shell">
@@ -36,21 +36,11 @@
       </nav>
 
       <section id="scanPanel" class="tab-panel is-active" data-panel="scan">
-        <section class="photo-scan-section">
-          <div>
-            <h2>사진으로 QR 인식</h2>
-            <p>iPhone에서는 이 방법이 가장 안정적입니다. 카메라로 QR을 촬영하거나 저장된 이미지를 선택하세요.</p>
-          </div>
-          <label class="photo-scan-button" for="photoInput">사진 찍기 / 선택</label>
-          <input id="photoInput" class="visually-hidden" type="file" accept="image/*" capture="environment">
-          <canvas id="qrCanvas" class="visually-hidden"></canvas>
-        </section>
-
         <div class="camera-panel">
           <video id="cameraPreview" class="camera-preview" muted playsinline></video>
           <div id="cameraEmpty" class="camera-empty">
             <strong>QR 스캔 대기</strong>
-            <span>실시간 인식은 Android와 iPhone 모두에서 시도합니다.</span>
+            <span>Android와 iPhone 모두 실시간 인식을 먼저 시도합니다.</span>
           </div>
         </div>
 
@@ -61,6 +51,13 @@
 
         <p id="scannerSupportText" class="helper-text"></p>
 
+        <section class="photo-scan-section is-compact">
+          <span>실시간 인식이 어렵다면 사진으로 인식</span>
+          <label class="photo-scan-button" for="photoInput">사진 선택</label>
+          <input id="photoInput" class="visually-hidden" type="file" accept="image/*" capture="environment">
+          <canvas id="qrCanvas" class="visually-hidden"></canvas>
+        </section>
+
         <label class="input-label" for="manualInput">QR URL 직접 입력</label>
         <textarea id="manualInput" class="manual-input" rows="4" spellcheck="false" placeholder="https://m.dhlottery.co.kr/?v=0955q010715172842q030712163541q202730353941q031328364445q021214192934"></textarea>
 
@@ -70,6 +67,30 @@
         </div>
 
         <p id="messageText" class="message-text" role="status"></p>
+
+        <section id="scanFlowContent" class="scan-flow-content" hidden>
+          <section class="round-summary compact-summary">
+            <span>회차</span>
+            <strong id="scanRoundText">-</strong>
+          </section>
+          <p id="scanExtraDataText" class="extra-data-text" hidden></p>
+          <div id="scanGamesList" class="games-list"></div>
+
+          <section class="generator-section inline-generator">
+            <div class="section-title">
+              <h2>제외 요약</h2>
+              <span id="scanAvailableCount" class="muted-text">45개 후보</span>
+            </div>
+            <div id="scanExcludedSummary" class="excluded-summary">제외된 번호가 없습니다.</div>
+          </section>
+
+          <button id="scanGenerateButton" class="generate-button" type="button">랜덤 번호 생성</button>
+
+          <section id="scanGeneratedResult" class="generated-result" hidden>
+            <h2>생성 결과</h2>
+            <div id="scanGeneratedBalls" class="balls-row"></div>
+          </section>
+        </section>
       </section>
 
       <section id="resultPanel" class="tab-panel" data-panel="result">
