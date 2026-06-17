@@ -286,10 +286,8 @@ function analyzeRawQr(raw) {
       return;
     }
 
+    resetAnalysisStateForNewQr();
     state.parsed = result.data;
-    state.excludedGameIds.clear();
-    state.excludeAllScanned = false;
-    els.excludeAllScanned.checked = false;
     renderParsedResult();
     renderExclusionSummary();
     setStatus("분석 완료");
@@ -298,6 +296,21 @@ function analyzeRawQr(raw) {
     setStatus("오류");
     setMessage("QR 데이터를 분석하지 못했습니다.", "error");
   }
+}
+
+function resetAnalysisStateForNewQr() {
+  state.excludeAllScanned = false;
+  state.excludedGameIds.clear();
+  state.manualExcludedNumbers.clear();
+  state.generatedHistory = [];
+
+  els.excludeAllScanned.checked = false;
+  els.generatedResult.hidden = true;
+  els.scanGeneratedResult.hidden = true;
+  els.historySection.hidden = true;
+  els.generatedBalls.innerHTML = "";
+  els.scanGeneratedBalls.innerHTML = "";
+  els.historyList.innerHTML = "";
 }
 
 function renderParsedResult() {
