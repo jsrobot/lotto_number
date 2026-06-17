@@ -145,7 +145,7 @@ function normalizeGameCount(value) {
 }
 
 function handleTouchStart(event) {
-  if (isSwipeIgnored(event.target) || event.touches.length !== 1) {
+  if (event.touches.length !== 1) {
     state.touchStartX = null;
     state.touchStartY = null;
     return;
@@ -180,12 +180,6 @@ function handleTouchEnd(event) {
   if (nextTab) {
     activateTab(nextTab);
   }
-}
-
-function isSwipeIgnored(target) {
-  return Boolean(target.closest(
-    "button, input, textarea, select, label, .number-toggle, .game-row, .photo-scan-section, .camera-panel"
-  ));
 }
 
 async function startScanner() {
