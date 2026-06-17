@@ -61,6 +61,17 @@ python -m http.server 8000
 
 앱은 CDN을 사용하지 않고 로컬 정적 파일을 로드합니다.
 
+## 디렉토리 구조
+
+- 앱 진입점: `index.html`
+- 앱 로직: `src/js/app.js`
+- 로또 파싱/생성 로직: `src/js/lotto.js`
+- 스타일: `src/css/styles.css`
+- 아이콘: `assets/icons/`
+- 아이콘 후보 미리보기 이미지: `assets/previews/`
+- 개발용 아이콘 미리보기 페이지: `tools/icon-preview.html`
+- 벤더 파일: `vendor/jsqr/jsQR.js`
+
 ## App icon
 
 모바일 홈 화면 바로가기용 아이콘은 후보 1을 기준으로 적용했습니다.
