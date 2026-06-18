@@ -1,14 +1,15 @@
 :root {
   color-scheme: light;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f6f7f2;
+  background: #f5fbf7;
   color: #202426;
   --paper: #fffdf8;
   --ink: #202426;
   --muted: #687077;
-  --line: #d9ddd2;
-  --accent: #126c64;
-  --accent-strong: #0b4f4a;
+  --line: #d8e5dc;
+  --accent: #22b8a8;
+  --accent-strong: #0c6f67;
+  --accent-soft: #dff8f4;
   --warning: #b35000;
   --danger: #c94134;
   --shadow: 0 14px 34px rgba(31, 43, 42, 0.11);
@@ -30,7 +31,7 @@ body {
   min-height: 100vh;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(247, 245, 239, 0.94)),
-    #f6f7f2;
+    #f5fbf7;
 }
 
 button,
@@ -104,7 +105,7 @@ h2 {
   padding: 8px 11px;
   border: 1px solid #c9dedb;
   border-radius: 999px;
-  background: #e8f5f3;
+  background: var(--accent-soft);
   color: var(--accent-strong);
   font-size: 0.82rem;
   font-weight: 750;
@@ -519,23 +520,40 @@ h2 {
 }
 
 .ball.range-1 {
-  background: #e4a11b;
+  background: #f3c12f;
+  color: #2d2500;
 }
 
 .ball.range-2 {
-  background: #2f7ecb;
+  background: #f59a23;
 }
 
 .ball.range-3 {
-  background: #c94134;
+  background: #e86f43;
 }
 
 .ball.range-4 {
-  background: #606b74;
+  background: #d64b61;
 }
 
 .ball.range-5 {
-  background: #3c9560;
+  background: #a55eb5;
+}
+
+.ball.range-6 {
+  background: #6975cf;
+}
+
+.ball.range-7 {
+  background: #398bd2;
+}
+
+.ball.range-8 {
+  background: #20a6a4;
+}
+
+.ball.range-9 {
+  background: #42a75f;
 }
 
 .generator-section,

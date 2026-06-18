@@ -625,11 +625,7 @@ function createMiniBall(number) {
 }
 
 function rangeClass(number) {
-  if (number <= 10) return "range-1";
-  if (number <= 20) return "range-2";
-  if (number <= 30) return "range-3";
-  if (number <= 40) return "range-4";
-  return "range-5";
+  return `range-${Math.ceil(number / 5)}`;
 }
 
 function selectionText(type) {
