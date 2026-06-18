@@ -127,6 +127,10 @@ function activateTab(tabName) {
   document.querySelectorAll(".tab-panel").forEach((panel) => {
     panel.classList.toggle("is-active", panel.dataset.panel === tabName);
   });
+
+  document.querySelectorAll(".swipe-dot").forEach((dot) => {
+    dot.classList.toggle("is-active", dot.dataset.tabDot === tabName);
+  });
 }
 
 function syncGameCount(event) {

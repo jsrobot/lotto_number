@@ -1,17 +1,17 @@
 :root {
   color-scheme: light;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f7f5ef;
-  color: #202124;
+  background: #f6f7f2;
+  color: #202426;
   --paper: #fffdf8;
-  --ink: #202124;
-  --muted: #6a6f76;
-  --line: #ddd7ca;
-  --accent: #147d73;
-  --accent-strong: #0a625a;
+  --ink: #202426;
+  --muted: #687077;
+  --line: #d9ddd2;
+  --accent: #126c64;
+  --accent-strong: #0b4f4a;
   --warning: #b35000;
-  --danger: #b42318;
-  --shadow: 0 16px 40px rgba(30, 37, 42, 0.12);
+  --danger: #c94134;
+  --shadow: 0 14px 34px rgba(31, 43, 42, 0.11);
   --result-ball-size: clamp(30px, 8vw, 38px);
   --result-ball-font: clamp(0.76rem, 2.7vw, 0.9rem);
   --result-ball-gap: 5px;
@@ -30,7 +30,7 @@ body {
   min-height: 100vh;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(247, 245, 239, 0.94)),
-    #f7f5ef;
+    #f6f7f2;
 }
 
 button,
@@ -116,14 +116,14 @@ h2 {
   gap: 6px;
   padding: 5px;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255, 253, 248, 0.82);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.92);
 }
 
 .tab-button {
   min-height: 44px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   color: var(--muted);
   font-weight: 800;
@@ -132,6 +132,24 @@ h2 {
 .tab-button.is-active {
   background: var(--accent);
   color: white;
+}
+
+.swipe-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 0 2px;
+}
+
+.swipe-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c9d6d3;
+}
+
+.swipe-dot.is-active {
+  background: var(--accent);
 }
 
 .tab-panel {
@@ -501,23 +519,23 @@ h2 {
 }
 
 .ball.range-1 {
-  background: #d8a100;
+  background: #e4a11b;
 }
 
 .ball.range-2 {
-  background: #2c82c9;
+  background: #2f7ecb;
 }
 
 .ball.range-3 {
-  background: #d84b3e;
+  background: #c94134;
 }
 
 .ball.range-4 {
-  background: #616973;
+  background: #606b74;
 }
 
 .ball.range-5 {
-  background: #3f9d5c;
+  background: #3c9560;
 }
 
 .generator-section,
@@ -578,6 +596,11 @@ h2 {
   font-size: 1.04rem;
 }
 
+.generation-action-section .generate-button {
+  min-height: 58px;
+  margin-bottom: 0;
+}
+
 .inline-generator {
   margin-top: 14px;
 }
@@ -585,6 +608,13 @@ h2 {
 .game-count-section {
   display: grid;
   gap: 12px;
+}
+
+.generation-action-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 126px;
+  align-items: end;
+  gap: 10px;
 }
 
 .game-count-section .muted-text {
@@ -665,5 +695,11 @@ h2 {
   .ball {
     width: 46px;
     height: 46px;
+  }
+}
+
+@media (max-width: 360px) {
+  .generation-action-section {
+    grid-template-columns: 1fr;
   }
 }

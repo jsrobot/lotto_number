@@ -6,18 +6,18 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="theme-color" content="#f7f5ef">
+    <meta name="theme-color" content="#126c64">
     <meta name="apple-mobile-web-app-title" content="Lotto QR">
     <meta name="application-name" content="Lotto QR">
     <title>Lotto QR Analyzer</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=20260617-reset-1">
+    <link rel="manifest" href="./manifest.webmanifest?v=20260617-design-1">
     <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16.png">
-    <link rel="stylesheet" href="./src/css/styles.css?v=20260617-size-swipe-1">
+    <link rel="stylesheet" href="./src/css/styles.css?v=20260617-design-1">
     <script src="./vendor/jsqr/jsQR.js?v=20260617-reset-1"></script>
-    <script src="./src/js/lotto.js?v=20260617-size-swipe-1"></script>
-    <script defer src="./src/js/app.js?v=20260617-size-swipe-1"></script>
+    <script src="./src/js/lotto.js?v=20260617-design-1"></script>
+    <script defer src="./src/js/app.js?v=20260617-design-1"></script>
   </head>
   <body>
     <main class="app-shell">
@@ -34,6 +34,11 @@
         <button class="tab-button" type="button" data-tab="result">결과</button>
         <button class="tab-button" type="button" data-tab="generate">생성</button>
       </nav>
+      <div class="swipe-indicator" aria-hidden="true">
+        <span class="swipe-dot is-active" data-tab-dot="scan"></span>
+        <span class="swipe-dot" data-tab-dot="result"></span>
+        <span class="swipe-dot" data-tab-dot="generate"></span>
+      </div>
 
       <section id="scanPanel" class="tab-panel is-active" data-panel="scan">
         <div class="camera-panel">
@@ -84,21 +89,22 @@
             <div id="scanExcludedSummary" class="excluded-summary">제외된 번호가 없습니다.</div>
           </section>
 
-          <section class="generator-section game-count-section">
-            <div class="section-title">
-              <h2>생성 게임 수</h2>
-              <span class="muted-text">최대 5게임</span>
+          <section class="generator-section generation-action-section">
+            <div class="game-count-section">
+              <div class="section-title">
+                <h2>생성 게임 수</h2>
+                <span class="muted-text">최대 5게임</span>
+              </div>
+              <select id="scanGameCountSelect" class="game-count-select" aria-label="생성할 게임 수">
+                <option value="1">1게임</option>
+                <option value="2">2게임</option>
+                <option value="3">3게임</option>
+                <option value="4">4게임</option>
+                <option value="5" selected>5게임</option>
+              </select>
             </div>
-            <select id="scanGameCountSelect" class="game-count-select" aria-label="생성할 게임 수">
-              <option value="1">1게임</option>
-              <option value="2">2게임</option>
-              <option value="3">3게임</option>
-              <option value="4">4게임</option>
-              <option value="5" selected>5게임</option>
-            </select>
+            <button id="scanGenerateButton" class="generate-button" type="button">랜덤 번호 생성</button>
           </section>
-
-          <button id="scanGenerateButton" class="generate-button" type="button">랜덤 번호 생성</button>
 
           <section id="scanGeneratedResult" class="generated-result" hidden>
             <h2>생성 결과</h2>
@@ -146,21 +152,22 @@
           <div id="excludedSummary" class="excluded-summary">제외된 번호가 없습니다.</div>
         </section>
 
-        <section class="generator-section game-count-section">
-          <div class="section-title">
-            <h2>생성 게임 수</h2>
-            <span class="muted-text">최대 5게임</span>
+        <section class="generator-section generation-action-section">
+          <div class="game-count-section">
+            <div class="section-title">
+              <h2>생성 게임 수</h2>
+              <span class="muted-text">최대 5게임</span>
+            </div>
+            <select id="gameCountSelect" class="game-count-select" aria-label="생성할 게임 수">
+              <option value="1">1게임</option>
+              <option value="2">2게임</option>
+              <option value="3">3게임</option>
+              <option value="4">4게임</option>
+              <option value="5" selected>5게임</option>
+            </select>
           </div>
-          <select id="gameCountSelect" class="game-count-select" aria-label="생성할 게임 수">
-            <option value="1">1게임</option>
-            <option value="2">2게임</option>
-            <option value="3">3게임</option>
-            <option value="4">4게임</option>
-            <option value="5" selected>5게임</option>
-          </select>
+          <button id="generateButton" class="generate-button" type="button" disabled>랜덤 번호 생성</button>
         </section>
-
-        <button id="generateButton" class="generate-button" type="button" disabled>랜덤 번호 생성</button>
 
         <section id="generatedResult" class="generated-result" hidden>
           <h2>생성 결과</h2>
